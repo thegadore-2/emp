@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display CSV Raw Content</title>
+    <style>
+        body {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Employee CSV Content</h1>
+<pre id="csv-content">Loading...</pre>
+
+<script>
+    const csvUrl = "https://www.dropbox.com/scl/fi/ki39kq80vrf2htdyvqbo3/EMP_DATA.csv?rlkey=t1birqju1hq8o76uob2gzm5wu&raw=1";
+
+    fetch(csvUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(text => {
+            document.getElementById("csv-content").textContent = text;
+        })
+        .catch(error => {
+            document.getElementById("csv-content").textContent = `Error loading CSV: ${error.message}`;
+            console.error("Fetch error details:", error);
+        });
+</script>
+
+</body>
+</html>
