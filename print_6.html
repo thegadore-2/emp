@@ -3,15 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee List ver 1.4: ID, Name, Agency</title>
+    <title>Find Employee by ID</title>
 </head>
 <body>
 
-<h1>Employee List</h1>
-<pre id="result">Loading...</pre>
+<h1>Ver. 1.4 – Find Employee by ID</h1>
+
+<input type="text" id="idInput" placeholder="Enter Employee ID" />
+<button onclick="findEmployee()">Search</button>
+
+<div id="result">Loading employee data...</div>
 
 <script>
     const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
+    let employeeList = [];
 
     fetch(csvUrl)
         .then(response => {
@@ -23,27 +28,51 @@
             const headers = lines[0].split(',');
             const idIndex = headers.indexOf("ID");
             const nameIndex = headers.indexOf("NAME");
-            const agencyIndex = headers.indexOf("AGENCY");
 
-            if (idIndex === -1 || nameIndex === -1 || agencyIndex === -1) {
+            if (idIndex === -1 || nameIndex === -1) {
                 document.getElementById("result").textContent = "Required columns not found.";
                 return;
             }
 
-            const entries = lines.slice(1).map(line => {
+            employeeList = lines.slice(1).map(line => {
                 const cols = line.split(',');
-                const id = cols[idIndex]?.trim();
-                const name = cols[nameIndex]?.trim();
-                const agency = cols[agencyIndex]?.trim();
-                return (id && name && agency) ? `${id} – ${name} – ${agency}` : null;
-            }).filter(entry => entry);
+                return {
+                    id: cols[idIndex]?.trim(),
+                    name: cols[nameIndex]?.trim()
+                };
+            });
 
-            document.getElementById("result").textContent = entries.join('\n');
+            document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
         })
         .catch(error => {
             console.error("Fetch error:", error);
             document.getElementById("result").textContent = "Failed to load employee data.";
         });
+
+    function findEmployee() {
+        const inputId = document.getElementById("idInput").value.trim();
+        const resultDiv = document.getElementById("result");
+
+        if (!inputId) {
+            resultDiv.textContent = "Please enter an Employee ID.";
+            return;
+        }
+
+        const match = employeeList.find(emp => emp.id === inputId);
+
+        if (match) {
+            resultDiv.textContent = `ID: ${match.id}\nName: ${match.name}`;
+        } else {
+            resultDiv.textContent = "Employee not found.";
+        }
+    }
+
+    // Allow Enter key to trigger search
+    document.getElementById("idInput").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            findEmployee();
+        }
+    });
 </script>
 
 </body>
