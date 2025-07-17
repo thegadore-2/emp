@@ -3,74 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Lookup</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .version { font-size: 14px; color: gray; margin-bottom: 10px; }
-        input { padding: 8px; font-size: 16px; }
-        .result { margin-top: 20px; font-weight: bold; }
-    </style>
+    <title>Simple ID List</title>
 </head>
 <body>
 
-    <div class="version">Ver. 1.3</div>
+<h1>Employee IDs</h1>
+<pre id="result">Loading...</pre>
 
-    <h1>Employee Lookup</h1>
-    <input type="text" id="employeeIdInput" placeholder="Enter Employee ID" />
-    <div class="result" id="result"></div>
+<script>
+    const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
 
-    <script>
-        const csvUrl = 'https://raw.githubusercontent.com/thegadore-2/emp/main/EMP_DATA.csv';
-        let employees = [];
-
-        function parseCSV(text) {
-            const lines = text.trim().split('\n');
+    fetch(csvUrl)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            return response.text();
+        })
+        .then(data => {
+            const lines = data.trim().split('\n');
             const headers = lines[0].split(',');
-
             const idIndex = headers.indexOf("ID");
-            const nameIndex = headers.indexOf("NAME");
-            const departmentIndex = headers.indexOf("AGENCY");
 
-            return lines.slice(1).map(line => {
-                const cols = line.split(',');
-                return {
-                    id: cols[idIndex].trim(),
-                    name: cols[nameIndex].trim(),
-                    department: cols[departmentIndex].trim()
-                };
-            });
-        }
-
-        fetch(csvUrl)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-                return response.text();
-            })
-            .then(data => {
-                employees = parseCSV(data);
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                document.getElementById("result").textContent = "Failed to load employee data.";
-            });
-
-        document.getElementById("employeeIdInput").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                const inputId = event.target.value.trim();
-                const match = employees.find(emp => emp.id === inputId);
-
-                const resultDiv = document.getElementById("result");
-                if (match) {
-                    resultDiv.innerHTML = `
-                        Name: ${match.name}<br>
-                        Department: ${match.department}
-                    `;
-                } else {
-                    resultDiv.textContent = "Employee ID not found.";
-                }
+            if (idIndex === -1) {
+                document.getElementById("result").textContent = "No 'ID' column found.";
+                return;
             }
+
+            const ids = lines.slice(1).map(line => {
+                const cols = line.split(',');
+                return cols[idIndex]?.trim();
+            }).filter(id => id); // Filter out empty or undefined IDs
+
+            document.getElementById("result").textContent = ids.join('\n');
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+            document.getElementById("result").textContent = "Failed to load employee data.";
         });
-    </script>
+</script>
 
 </body>
 </html>
