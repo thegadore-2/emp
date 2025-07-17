@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple ID and Name List</title>
+    <title>Employee List ver 1.4: ID, Name, Agency</title>
 </head>
 <body>
 
-<h1>Employee IDs and Names</h1>
+<h1>Employee List</h1>
 <pre id="result">Loading...</pre>
 
 <script>
@@ -23,8 +23,9 @@
             const headers = lines[0].split(',');
             const idIndex = headers.indexOf("ID");
             const nameIndex = headers.indexOf("NAME");
+            const agencyIndex = headers.indexOf("AGENCY");
 
-            if (idIndex === -1 || nameIndex === -1) {
+            if (idIndex === -1 || nameIndex === -1 || agencyIndex === -1) {
                 document.getElementById("result").textContent = "Required columns not found.";
                 return;
             }
@@ -33,7 +34,8 @@
                 const cols = line.split(',');
                 const id = cols[idIndex]?.trim();
                 const name = cols[nameIndex]?.trim();
-                return id && name ? `${id} - ${name}` : null;
+                const agency = cols[agencyIndex]?.trim();
+                return (id && name && agency) ? `${id} – ${name} – ${agency}` : null;
             }).filter(entry => entry);
 
             document.getElementById("result").textContent = entries.join('\n');
