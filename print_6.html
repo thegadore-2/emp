@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<h1>Ver. 1.5 – Find Employee by ID</h1>
+<h1>Ver. 1.6 – Find Employee by ID</h1>
 
 <input type="text" id="idInput" placeholder="Enter Employee ID" />
 <button onclick="findEmployee()">Search</button>
@@ -74,13 +74,16 @@
             const printWindow = window.open('', '', 'height=300,width=400');
             printWindow.document.write('<pre>' + content + '</pre>');
             printWindow.document.close();
+            printWindow.focus();
             printWindow.print();
+            setTimeout(() => {
+                printWindow.close();
+            }, 500);
         } else {
             alert("No employee information to print.");
         }
     }
 
-    // Allow Enter key to trigger search
     document.getElementById("idInput").addEventListener("keyup", function(event) {
         if (event.key === "Enter") {
             findEmployee();
