@@ -1,88 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Employee by ID – Ver. 1.3</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ver. 1.7 – Employee Lookup</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      font-size: 16px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    input {
+      font-size: 16px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    #result {
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Ver. 1.6 – Find Employee by ID</h1>
+<h1>Ver. 1.3 – Employee Lookup</h1>
 
 <input type="text" id="idInput" placeholder="Enter Employee ID" />
 <div id="result">Loading employee data...</div>
 
 <script>
-    const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
-    let employeeList = [];
+  const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
+  let employeeList = [];
 
-    fetch(csvUrl)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-            return response.text();
-        })
-        .then(data => {
-            const lines = data.trim().split('\n');
-            const headers = lines[0].split(',');
-            const idIndex = headers.indexOf("ID");
-            const nameIndex = headers.indexOf("NAME");
+  fetch(csvUrl)
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      return response.text();
+    })
+    .then(data => {
+      const lines = data.trim().split('\n');
+      const headers = lines[0].split(',');
+      const idIndex = headers.indexOf("ID");
+      const nameIndex = headers.indexOf("NAME");
 
-            if (idIndex === -1 || nameIndex === -1) {
-                document.getElementById("result").textContent = "Required columns not found.";
-                return;
-            }
+      if (idIndex === -1 || nameIndex === -1) {
+        document.getElementById("result").textContent = "Required columns not found.";
+        return;
+      }
 
-            employeeList = lines.slice(1).map(line => {
-                const cols = line.split(',');
-                return {
-                    id: cols[idIndex]?.trim(),
-                    name: cols[nameIndex]?.trim()
-                };
-            });
+      employeeList = lines.slice(1).map(line => {
+        const cols = line.split(',');
+        return {
+          id: cols[idIndex]?.trim(),
+          name: cols[nameIndex]?.trim()
+        };
+      });
 
-            document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
-        })
-        .catch(error => {
-            console.error("Fetch error:", error);
-            document.getElementById("result").textContent = "Failed to load employee data.";
-        });
-
-    function findEmployee() {
-        const inputId = document.getElementById("idInput").value.trim();
-        const resultDiv = document.getElementById("result");
-
-        if (!inputId) {
-            resultDiv.textContent = "Please enter an Employee ID.";
-            return;
-        }
-
-        const match = employeeList.find(emp => emp.id === inputId);
-
-        if (match) {
-            const displayText = `ID: ${match.id}\nName: ${match.name}`;
-            resultDiv.textContent = displayText;
-            printResult(displayText);
-        } else {
-            resultDiv.textContent = "Employee not found.";
-        }
-    }
-
-    function printResult(content) {
-        const printWindow = window.open('', 'RAPT Grill & Restobar', 'height=300,width=400');
-        printWindow.document.write('<html><head><title>RAPT Grill & Restobar</title></head><body><pre>' + content + '</pre></body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        setTimeout(() => {
-            printWindow.close();
-        }, 500);
-    }
-
-    document.getElementById("idInput").addEventListener("keyup", function(event) {
-        if (event.key === "Enter") {
-            findEmployee();
-        }
+      document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+      document.getElementById("result").textContent = "Failed to load employee data.";
     });
+
+  function findEmployee() {
+    const inputId = document.getElementById("idInput").value.trim();
+    const resultDiv = document.getElementById("result");
+
+    if (!inputId) {
+      resultDiv.textContent = "Please enter an Employee ID.";
+      return;
+    }
+
+    const match = employeeList.find(emp => emp.id === inputId);
+
+    if (match) {
+      resultDiv.textContent = `ID: ${match.id}\nName: ${match.name}`;
+      printResult(match.id, match.name);
+    } else {
+      resultDiv.textContent = "Employee not found.";
+    }
+  }
+
+  function printResult(id, name) {
+    const printWindow = window.open('', 'RAPT Grill & Restobar', 'height=300,width=400');
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>RAPT Grill & Restobar</title>
+        <style>
+          @media print {
+            body {
+              width: 58mm;
+              margin: 0;
+              padding: 0;
+              font-family: monospace, sans-serif;
+              font-size: 16px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            td.label {
+              text-align: right;
+              padding-right: 5px;
+              font-weight: normal;
+              white-space: nowrap;
+            }
+            td.value {
+              font-weight: bold;
+              font-size: 130%;
+              white-space: nowrap;
+            }
+          }
+          body {
+            width: 58mm;
+            margin: 0;
+            padding: 0;
+            font-family: monospace, sans-serif;
+            font-size: 16px;
+          }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr>
+            <td class="label">ID:</td>
+            <td class="value">${id}</td>
+          </tr>
+          <tr>
+            <td class="label">Name:</td>
+            <td class="value">${name}</td>
+          </tr>
+          <tr>
+            <td class="label">Amount:</td>
+            <td class="value"></td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    setTimeout(() => {
+      printWindow.close();
+    }, 500);
+  }
+
+  document.getElementById("idInput").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+      findEmployee();
+    }
+  });
 </script>
 
 </body>
