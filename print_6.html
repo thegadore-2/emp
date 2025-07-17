@@ -16,7 +16,11 @@
       font-size: 16px;
       padding: 5px;
       margin-top: 10px;
-      margin-bottom: 10px;
+    }
+    button {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin-left: 5px;
     }
     #result {
       margin-top: 10px;
@@ -30,13 +34,12 @@
 <h3 id="currentDate"></h3>
 
 <input type="text" id="idInput" placeholder="Enter Employee ID" />
+<button onclick="clearInput()">Clear</button>
+
 <div id="result">Loading employee data...</div>
 
 <script>
-  // Display current date
-  const now = new Date();
-  document.getElementById("currentDate").textContent = 
-    "Date: " + now.toLocaleDateString();
+  document.getElementById("currentDate").textContent = "Date: " + new Date().toLocaleDateString();
 
   const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
   let employeeList = [];
@@ -51,11 +54,6 @@
       const headers = lines[0].split(',');
       const idIndex = headers.indexOf("ID");
       const nameIndex = headers.indexOf("NAME");
-
-      if (idIndex === -1 || nameIndex === -1) {
-        document.getElementById("result").textContent = "Required columns not found.";
-        return;
-      }
 
       employeeList = lines.slice(1).map(line => {
         const cols = line.split(',');
@@ -89,6 +87,12 @@
     } else {
       resultDiv.textContent = "Employee not found.";
     }
+  }
+
+  function clearInput() {
+    document.getElementById("idInput").value = "";
+    document.getElementById("idInput").focus();
+    document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
   }
 
   function printResult(id, name) {
