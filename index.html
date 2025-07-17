@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Data Viewer</title>
+    <title>Employee List</title>
 </head>
 <body>
     <h1>Employee List</h1>
-    <pre id="csvContent">Loading CSV data...</pre>
+    <pre id="csvContent">Loading employee data...</pre>
 
     <script>
-        // Replace this with your actual GitHub raw CSV link:
-        const csvUrl = 'https://raw.githubusercontent.com/yourusername/your-repo-name/main/EMP_DATA.csv';
+        const csvUrl = 'https://raw.githubusercontent.com/thegadore-2/emp/main/EMP_DATA.csv';
 
         fetch(csvUrl)
             .then(response => {
