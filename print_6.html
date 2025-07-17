@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Employee by ID</title>
+    <title>Find Employee by ID and Print</title>
 </head>
 <body>
 
-<h1>Ver. 1.4 – Find Employee by ID</h1>
+<h1>Ver. 1.5 – Find Employee by ID</h1>
 
 <input type="text" id="idInput" placeholder="Enter Employee ID" />
 <button onclick="findEmployee()">Search</button>
+<button onclick="printResult()">Print</button>
 
 <div id="result">Loading employee data...</div>
 
@@ -64,6 +65,18 @@
             resultDiv.textContent = `ID: ${match.id}\nName: ${match.name}`;
         } else {
             resultDiv.textContent = "Employee not found.";
+        }
+    }
+
+    function printResult() {
+        const content = document.getElementById("result").textContent;
+        if (content && !content.startsWith("Employee data loaded")) {
+            const printWindow = window.open('', '', 'height=300,width=400');
+            printWindow.document.write('<pre>' + content + '</pre>');
+            printWindow.document.close();
+            printWindow.print();
+        } else {
+            alert("No employee information to print.");
         }
     }
 
