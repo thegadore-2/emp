@@ -3,37 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display CSV Raw Content</title>
+    <title>Client Lookup</title>
     <style>
         body {
-            font-family: monospace;
-            white-space: pre-wrap;
+            font-family: Arial, sans-serif;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<h1>Employee CSV Content</h1>
-<pre id="csv-content">Loading...</pre>
+    <h1>Enter Client ID</h1>
+    <input type="text" id="clientIdInput" placeholder="Enter ID" />
+    <div class="result" id="result"></div>
 
-<script>
-    const csvUrl = "https://www.dropbox.com/scl/fi/ki39kq80vrf2htdyvqbo3/EMP_DATA.csv?rlkey=t1birqju1hq8o76uob2gzm5wu&raw=1";
+    <script>
+        // Example static client data:
+        const clients = {
+            "001": { name: "Allan Restauro", department: "Grin Department" },
+            "002": { name: "Jane Doe", department: "Smile Department" }
+            // You can add more entries here
+        };
 
-    fetch(csvUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error: ${response.status}`);
+        document.getElementById("clientIdInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                const inputId = event.target.value.trim();
+                const client = clients[inputId];
+
+                const resultDiv = document.getElementById("result");
+                if (client) {
+                    resultDiv.innerHTML = `
+                        Name: ${client.name}<br>
+                        Department: ${client.department}
+                    `;
+                } else {
+                    resultDiv.textContent = "Client ID not found.";
+                }
             }
-            return response.text();
-        })
-        .then(text => {
-            document.getElementById("csv-content").textContent = text;
-        })
-        .catch(error => {
-            document.getElementById("csv-content").textContent = `Error loading CSV: ${error.message}`;
-            console.error("Fetch error details:", error);
         });
-</script>
+    </script>
 
 </body>
 </html>
