@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple ID List</title>
+    <title>Simple ID and Name List</title>
 </head>
 <body>
 
-<h1>Employee IDs</h1>
+<h1>Employee IDs and Names</h1>
 <pre id="result">Loading...</pre>
 
 <script>
@@ -22,18 +22,21 @@
             const lines = data.trim().split('\n');
             const headers = lines[0].split(',');
             const idIndex = headers.indexOf("ID");
+            const nameIndex = headers.indexOf("NAME");
 
-            if (idIndex === -1) {
-                document.getElementById("result").textContent = "No 'ID' column found.";
+            if (idIndex === -1 || nameIndex === -1) {
+                document.getElementById("result").textContent = "Required columns not found.";
                 return;
             }
 
-            const ids = lines.slice(1).map(line => {
+            const entries = lines.slice(1).map(line => {
                 const cols = line.split(',');
-                return cols[idIndex]?.trim();
-            }).filter(id => id); // Filter out empty or undefined IDs
+                const id = cols[idIndex]?.trim();
+                const name = cols[nameIndex]?.trim();
+                return id && name ? `${id} - ${name}` : null;
+            }).filter(entry => entry);
 
-            document.getElementById("result").textContent = ids.join('\n');
+            document.getElementById("result").textContent = entries.join('\n');
         })
         .catch(error => {
             console.error("Fetch error:", error);
