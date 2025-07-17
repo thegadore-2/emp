@@ -3,9 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello Page</title>
+    <title>Employee List</title>
 </head>
 <body>
-    <h1>Hello World</h1>
+    <h1>Employee List</h1>
+    <pre id="csvContent">Loading employee data...</pre>
+
+    <script>
+        const csvUrl = 'https://raw.githubusercontent.com/thegadore-2/emp/main/EMP_DATA.csv';
+
+        fetch(csvUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('csvContent').textContent = data;
+            })
+            .catch(error => {
+                console.error("Fetch error details:", error);
+                document.getElementById('csvContent').textContent = "Error loading CSV: " + error.message;
+            });
+    </script>
 </body>
 </html>
