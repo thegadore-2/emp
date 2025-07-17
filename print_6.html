@@ -3,44 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Lookup</title>
+    <title>Employee Lookup</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .result {
-            font-weight: bold;
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .version { font-size: 14px; color: gray; margin-bottom: 10px; }
+        input { padding: 8px; font-size: 16px; }
+        .result { margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Enter Client ID</h1>
-    <input type="text" id="clientIdInput" placeholder="Enter ID" />
+    <div class="version">Ver. 1.3</div>
+
+    <h1>Employee Lookup</h1>
+    <input type="text" id="employeeIdInput" placeholder="Enter Employee ID" />
     <div class="result" id="result"></div>
 
     <script>
-        // Example static client data:
-        const clients = {
-            "001": { name: "Allan Restauro", department: "Grin Department" },
-            "002": { name: "Jane Doe", department: "Smile Department" }
-            // You can add more entries here
-        };
+        const csvUrl = 'https://raw.githubusercontent.com/thegadore-2/emp/main/EMP_DATA.csv';
+        let employees = [];
 
-        document.getElementById("clientIdInput").addEventListener("keydown", function(event) {
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',');
+
+            const idIndex = headers.indexOf("ID");
+            const nameIndex = headers.indexOf("NAME");
+            const departmentIndex = headers.indexOf("AGENCY");
+
+            return lines.slice(1).map(line => {
+                const cols = line.split(',');
+                return {
+                    id: cols[idIndex].trim(),
+                    name: cols[nameIndex].trim(),
+                    department: cols[departmentIndex].trim()
+                };
+            });
+        }
+
+        fetch(csvUrl)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                return response.text();
+            })
+            .then(data => {
+                employees = parseCSV(data);
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                document.getElementById("result").textContent = "Failed to load employee data.";
+            });
+
+        document.getElementById("employeeIdInput").addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 const inputId = event.target.value.trim();
-                const client = clients[inputId];
+                const match = employees.find(emp => emp.id === inputId);
 
                 const resultDiv = document.getElementById("result");
-                if (client) {
+                if (match) {
                     resultDiv.innerHTML = `
-                        Name: ${client.name}<br>
-                        Department: ${client.department}
+                        Name: ${match.name}<br>
+                        Department: ${match.department}
                     `;
                 } else {
-                    resultDiv.textContent = "Client ID not found.";
+                    resultDiv.textContent = "Employee ID not found.";
                 }
             }
         });
