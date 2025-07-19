@@ -3,221 +3,287 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Canteen Deduction (ver. 1.9)</title>
+  <title>Payroll Deduction Meal Coupon</title>
   <style>
     body {
-      font-family: sans-serif;
-      font-size: 16px;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #224889;
+      color: white;
       text-align: center;
     }
-    h1, h2, h3 {
-      margin: 5px 0;
+
+    img.logo {
+      max-width: 100px;
+      margin: 20px auto;
+      display: block;
     }
-    input {
-      font-size: 16px;
-      padding: 5px;
-      margin-top: 10px;
+
+    h1 {
+      font-size: 28px;
+      margin: 0;
     }
-    button {
-      font-size: 16px;
-      padding: 8px 16px;
-      margin: 5px;
-      width: 140px;
+
+    h2 {
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: normal;
     }
-    #result {
-      margin-top: 10px;
-      white-space: pre-line;
-    }
-    .hidden {
-      display: none;
-    }
+
     .button-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 320px;
-      margin: auto;
+      gap: 10px;
+      margin: 15px auto 25px;
+      max-width: 400px;
     }
-    .button-grid button {
-      width: 45%;
-      margin: 5px;
+
+    .main-button {
+      background-color: #0C234C;
+      color: white;
+      padding: 12px 20px;
+      border: 2px solid #0C234C;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: normal;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      flex: 1 1 calc(50% - 10px);
+      min-width: 140px;
+    }
+
+    .main-button:hover {
+      background-color: #143869;
+    }
+
+    .main-button:active {
+      transform: scale(0.97);
+    }
+
+    .authorization-box {
+      border: 2px solid #0C234C;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 30px auto;
+      max-width: 600px;
+      background-color: #224889;
+      color: white;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-box-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box {
+      padding: 10px 35px 10px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      width: 250px;
+      max-width: 80vw;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .clear-button {
+      background-color: #0C234C;
+      color: white;
+      border: 2px solid #0C234C;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .result-strip {
+      background-color: white;
+      width: 100%;
+      padding: 30px 10px;
+      box-sizing: border-box;
+      margin-top: 30px;
+    }
+
+    .result-container {
+      max-width: 400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      color: #0C234C;
+      font-size: 16px;
+    }
+
+    .result-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .label {
+      min-width: 90px;
+      text-align: right;
+    }
+
+    .colon {
+      min-width: 10px;
+    }
+
+    .value {
+      flex: 1;
+      text-align: left;
+    }
+
+    .home-button {
+      margin: 30px auto 0;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
     }
   </style>
 </head>
 <body>
+  <div id="departmentScreen" class="screen active">
+    <img src="https://thegadore-2.github.io/emp/allan_logo.jfif" class="logo" alt="Logo" />
+    <h1>Payroll Deduction Meal Coupon</h1>
+    <h2>Please Select Your Department</h2>
 
-<div id="departmentSelection">
-  <h2>Select Department</h2>
-  <div class="button-grid">
-    <button onclick="selectDepartment(1, 'ECSI Direct')">1. ECSI Direct</button>
-    <button onclick="selectDepartment(5, 'EDDN Direct')">5. EDDN Direct</button>
-    <button onclick="selectDepartment(2, 'ECSI Premier')">2. ECSI Premier</button>
-    <button onclick="selectDepartment(6, 'EDDN Premier')">6. EDDN Premier</button>
-    <button onclick="selectDepartment(3, 'ECSI Good Job')">3. ECSI Good Job</button>
-    <button onclick="selectDepartment(7, 'EDDN Good Job')">7. EDDN Good Job</button>
-    <button onclick="selectDepartment(4, 'ECSI Easygen')">4. ECSI Easygen</button>
-    <button onclick="selectDepartment(8, 'EDDN Easygen')">8. EDDN Easygen</button>
+    <div class="button-grid">
+      <button class="main-button" onclick="goToSearch('ECSI Direct')">ECSI Direct</button>
+      <button class="main-button" onclick="goToSearch('EDDN Direct')">EDDN Direct</button>
+      <button class="main-button" onclick="goToSearch('ECSI Premier')">ECSI Premier</button>
+      <button class="main-button" onclick="goToSearch('EDDN Premier')">EDDN Premier</button>
+      <button class="main-button" onclick="goToSearch('ECSI Good Job')">ECSI Good Job</button>
+      <button class="main-button" onclick="goToSearch('EDDN Good Job')">EDDN Good Job</button>
+      <button class="main-button" onclick="goToSearch('ECSI Easygen')">ECSI Easygen</button>
+      <button class="main-button" onclick="goToSearch('EDDN Easygen')">EDDN Easygen</button>
+    </div>
+
+    <div class="authorization-box">
+      <strong>(Canteen Credit Payroll Authorization)</strong><br />
+      I hereby authorize the company to deduct from my salary or any final pay, the amount equivalent to my outstanding
+      credit line/obligation with the company canteen. I understand and acknowledge that this deduction will be made
+      regularly from my payroll until the full amount of my canteen credit line is paid. This authorization shall remain valid and
+      in full force unless revoked by writing, provided that all obligations to the canteen have been fully settled.
+    </div>
   </div>
-</div>
 
-<div id="mainContent" class="hidden">
-  <h1>Canteen Deduction (ver. 1.10)</h1>
-  <h2>RAPT Grill & Restobar</h2>
-  <h3 id="currentDate"></h3>
-  <h3 id="selectedDeptDisplay"></h3>
+  <div id="searchScreen" class="screen">
+    <img src="https://thegadore-2.github.io/emp/allan_logo.jfif" class="logo" alt="Logo" />
+    <h1>Payroll Deduction Meal Coupon</h1>
 
-  <input type="text" id="idInput" placeholder="Enter Employee ID" />
-  <button onclick="clearInput()">Clear</button>
+    <div class="search-bar-container">
+      <div class="search-box-wrapper">
+        <input type="text" class="search-box" id="idInput" placeholder="Type your ID" />
+        <span class="search-icon" onclick="searchID()">🔍</span>
+      </div>
+      <button class="clear-button" onclick="clearInput()">Clear</button>
+    </div>
 
-  <div id="result">Loading employee data...</div>
-</div>
+    <div class="result-strip" id="resultBox" style="display: none;">
+      <div class="result-container">
+        <div class="result-row">
+          <div class="label">Name</div>
+          <div class="colon">:</div>
+          <div class="value" id="resultName">Juan Dela Cruz</div>
+        </div>
+        <div class="result-row">
+          <div class="label">Department</div>
+          <div class="colon">:</div>
+          <div class="value" id="selectedDept">EDDN Premier</div>
+        </div>
+        <div class="result-row">
+          <div class="label">ID Number</div>
+          <div class="colon">:</div>
+          <div class="value" id="resultID">EMP123456</div>
+        </div>
+      </div>
+    </div>
 
-<script>
-  document.getElementById("currentDate").textContent = "Date: " + new Date().toLocaleDateString();
+    <button class="main-button home-button" onclick="goHome()">Home</button>
+  </div>
 
-  const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
-  let employeeList = [];
-  let selectedDeptNum = "";
-  let selectedDeptName = "";
+  <script>
+    let selectedDepartment = '';
+    let employeeList = [];
 
-  fetch(csvUrl)
-    .then(response => {
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      return response.text();
-    })
-    .then(data => {
-      const lines = data.trim().split('\n');
-      const headers = lines[0].split(',');
-      const idIndex = headers.indexOf("ID");
-      const nameIndex = headers.indexOf("NAME");
-
-      employeeList = lines.slice(1).map(line => {
-        const cols = line.split(',');
-        return {
-          id: cols[idIndex]?.trim(),
-          name: cols[nameIndex]?.trim()
-        };
+    fetch('https://thegadore-2.github.io/emp/EMP_DATA.csv')
+      .then(response => response.text())
+      .then(text => {
+        const rows = text.trim().split('\n');
+        const headers = rows[0].split(',');
+        const idIndex = headers.indexOf('ID');
+        const nameIndex = headers.indexOf('NAME');
+        employeeList = rows.slice(1).map(row => {
+          const cols = row.split(',');
+          return {
+            id: cols[idIndex]?.trim(),
+            name: cols[nameIndex]?.trim()
+          };
+        });
       });
 
-      document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
-    })
-    .catch(error => {
-      console.error("Fetch error:", error);
-      document.getElementById("result").textContent = "Failed to load employee data.";
-    });
-
-  function selectDepartment(num, name) {
-    selectedDeptNum = num;
-    selectedDeptName = name;
-    document.getElementById("selectedDeptDisplay").textContent = `Department: ${selectedDeptNum} – ${selectedDeptName}`;
-    document.getElementById("departmentSelection").classList.add("hidden");
-    document.getElementById("mainContent").classList.remove("hidden");
-    document.getElementById("idInput").focus();
-  }
-
-  function findEmployee() {
-    const inputId = document.getElementById("idInput").value.trim();
-    const resultDiv = document.getElementById("result");
-
-    if (!inputId) {
-      resultDiv.textContent = "Please enter an Employee ID.";
-      return;
+    function goToSearch(dept) {
+      selectedDepartment = dept;
+      document.getElementById("departmentScreen").classList.remove("active");
+      document.getElementById("searchScreen").classList.add("active");
+      document.getElementById("selectedDept").textContent = dept;
+      clearInput();
     }
 
-    const match = employeeList.find(emp => emp.id === inputId);
+    function goHome() {
+      document.getElementById("searchScreen").classList.remove("active");
+      document.getElementById("departmentScreen").classList.add("active");
+    }
 
-    if (match) {
-      resultDiv.textContent = `ID: ${match.id}\nName: ${match.name}`;
-      printResult(match.id, match.name);
-      document.getElementById("idInput").value = "";
+    function clearInput() {
+      document.getElementById("idInput").value = '';
       document.getElementById("idInput").focus();
-    } else {
-      resultDiv.textContent = "Employee not found.";
+      document.getElementById("resultBox").style.display = 'none';
     }
-  }
 
-  function clearInput() {
-    document.getElementById("idInput").value = "";
-    document.getElementById("idInput").focus();
-    document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
-  }
-
-  function printResult(id, name) {
-    const printWindow = window.open('', 'RAPT Grill & Restobar', 'height=300,width=400');
-    printWindow.document.write(`
-      <html>
-      <head>
-        <title>RAPT Grill & Restobar</title>
-        <style>
-          @media print {
-            body {
-              width: 58mm;
-              margin: 0;
-              padding: 0;
-              font-family: monospace, sans-serif;
-              font-size: 16px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            td.label {
-              text-align: right;
-              padding-right: 5px;
-              font-weight: normal;
-              white-space: nowrap;
-            }
-            td.value {
-              font-weight: bold;
-              font-size: 130%;
-              white-space: nowrap;
-            }
-          }
-          body {
-            width: 58mm;
-            margin: 0;
-            padding: 0;
-            font-family: monospace, sans-serif;
-            font-size: 16px;
-          }
-        </style>
-      </head>
-      <body>
-        <table>
-          <tr>
-            <td class="label">Dept:</td>
-            <td class="value">${selectedDeptNum}</td>
-          </tr>
-          <tr>
-            <td class="label">ID:</td>
-            <td class="value">${id}</td>
-          </tr>
-          <tr>
-            <td class="label">Name:</td>
-            <td class="value">${name}</td>
-          </tr>
-          <tr>
-            <td class="label">Amount:</td>
-            <td class="value"></td>
-          </tr>
-        </table>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    setTimeout(() => {
-      printWindow.close();
-    }, 500);
-  }
-
-  document.getElementById("idInput").addEventListener("keyup", function(event) {
-    if (event.key === "Enter") {
-      findEmployee();
+    function searchID() {
+      const id = document.getElementById("idInput").value.trim();
+      const result = employeeList.find(emp => emp.id === id);
+      if (result) {
+        document.getElementById("resultName").textContent = result.name;
+        document.getElementById("resultID").textContent = result.id;
+        document.getElementById("resultBox").style.display = 'block';
+      } else {
+        document.getElementById("resultName").textContent = 'Not found';
+        document.getElementById("resultID").textContent = '';
+        document.getElementById("resultBox").style.display = 'block';
+      }
     }
-  });
-</script>
 
+    document.getElementById("idInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        searchID();
+      }
+    });
+  </script>
 </body>
 </html>
