@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canteen Deduction (ver. 1.8)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .department-button {
+      margin: 10px;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 160px;
+    }
+    #deptButtons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+    }
+    #inputScreen {
+      margin-top: 30px;
+    }
+    input[type="text"] {
+      font-size: 20px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Canteen Deduction (ver. 1.8)</h2>
+  <h3>RAPT Grill & Restobar</h3>
+  <p>Date: <span id="currentDate"></span></p>
+
+  <div id="welcomeScreen">
+    <h3>Select Department</h3>
+    <div id="deptButtons">
+      <div class="column">
+        <button class="department-button">ECSI Direct</button>
+        <button class="department-button">ECSI Premier</button>
+        <button class="department-button">ECSI Good Job</button>
+        <button class="department-button">ECSI Easygen</button>
+      </div>
+      <div class="column">
+        <button class="department-button">EDDN Direct</button>
+        <button class="department-button">EDDN Premier</button>
+        <button class="department-button">EDDN Good Job</button>
+        <button class="department-button">EDDN Easygen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="inputScreen" class="hidden">
+    <p>
+      Department: <strong id="selectedDept"></strong><br>
+      <span id="deptNumber" style="font-weight: bold;"></span>
+    </p>
+    <input type="text" id="empIdInput" placeholder="Enter ID" />
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const departments = [
+      "ECSI Direct",
+      "ECSI Premier",
+      "ECSI Good Job",
+      "ECSI Easygen",
+      "EDDN Direct",
+      "EDDN Premier",
+      "EDDN Good Job",
+      "EDDN Easygen"
+    ];
+
+    const deptButtonsDiv = document.getElementById("deptButtons");
+    const selectedDeptText = document.getElementById("selectedDept");
+    const empIdInput = document.getElementById("empIdInput");
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    const inputScreen = document.getElementById("inputScreen");
+    const result = document.getElementById("result");
+
+    let selectedDept = "";
+    let selectedDeptIndex = -1;
+
+    document.querySelectorAll(".department-button").forEach((btn, index) => {
+      btn.onclick = () => selectDepartment(btn.textContent, index);
+    });
+
+    function selectDepartment(dept, index) {
+      selectedDept = dept;
+      selectedDeptIndex = index + 1;
+      selectedDeptText.textContent = dept;
+      document.getElementById("deptNumber").textContent = "Dept No: " + selectedDeptIndex;
+      welcomeScreen.classList.add("hidden");
+      inputScreen.classList.remove("hidden");
+      empIdInput.focus();
+    }
+
+    empIdInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        const id = empIdInput.value.trim();
+        fetch("emp_data.csv")
+          .then((res) => res.text())
+          .then((data) => {
+            const lines = data.trim().split("\n");
+            const headers = lines[0].split(",");
+            const idIndex = headers.indexOf("ID");
+            const nameIndex = headers.indexOf("NAME");
+            const match = lines.slice(1).map(row => row.split(",")).find(cells => cells[idIndex] === id);
+            if (match) {
+              const name = match[nameIndex];
+              result.textContent = `ID: ${id}\nName: ${name}`;
+              printReceipt(id, name);
+              empIdInput.value = "";
+            } else {
+              result.textContent = "ID not found.";
+            }
+          })
+          .catch((err) => {
+            console.error("Fetch error:", err);
+            result.textContent = "Failed to load employee data.";
+          });
+      }
+    });
+
+    function printReceipt(id, name) {
+      const popup = window.open("", "Print", "width=300,height=400");
+      popup.document.write(`
+        <html><head><title>RAPT Grill & Restobar</title></head>
+        <body style="font-size: 13px; font-family: monospace;">
+          <div style="white-space: pre-wrap;">
+Dept No: ${selectedDeptIndex}
+RAPT Grill & Restobar
+------------------------
+ID       : ${id}
+Name     : ${name}
+Dept     : ${selectedDept}
+Amount   : ____________
+------------------------
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(() => window.close(), 500);
+            }
+          <\/script>
+        </body></html>
+      `);
+      popup.document.close();
+    }
+
+    document.getElementById("currentDate").textContent = new Date().toLocaleDateString();
+  </script>
+</body>
+</html>
