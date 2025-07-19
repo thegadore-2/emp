@@ -3,165 +3,221 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Canteen Deduction (ver. 1.8)</title>
+  <title>Canteen Deduction (ver. 1.9)</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      font-size: 16px;
       text-align: center;
-      padding: 20px;
+    }
+    h1, h2, h3 {
+      margin: 5px 0;
+    }
+    input {
+      font-size: 16px;
+      padding: 5px;
+      margin-top: 10px;
+    }
+    button {
+      font-size: 16px;
+      padding: 8px 16px;
+      margin: 5px;
+      width: 140px;
+    }
+    #result {
+      margin-top: 10px;
+      white-space: pre-line;
     }
     .hidden {
       display: none;
     }
-    .department-button {
-      margin: 10px;
-      padding: 15px 30px;
-      font-size: 16px;
-      cursor: pointer;
-      width: 160px;
-    }
-    #deptButtons {
+    .button-grid {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 40px;
-      max-width: 500px;
-      margin: 0 auto;
+      max-width: 320px;
+      margin: auto;
     }
-    .column {
-      display: flex;
-      flex-direction: column;
-    }
-    #inputScreen {
-      margin-top: 30px;
-    }
-    input[type="text"] {
-      font-size: 20px;
-      padding: 10px;
+    .button-grid button {
+      width: 45%;
+      margin: 5px;
     }
   </style>
 </head>
 <body>
-  <h2>Canteen Deduction (ver. 1.8)</h2>
-  <h3>RAPT Grill & Restobar</h3>
-  <p>Date: <span id="currentDate"></span></p>
 
-  <div id="welcomeScreen">
-    <h3>Select Department</h3>
-    <div id="deptButtons">
-      <div class="column">
-        <button class="department-button">ECSI Direct</button>
-        <button class="department-button">ECSI Premier</button>
-        <button class="department-button">ECSI Good Job</button>
-        <button class="department-button">ECSI Easygen</button>
-      </div>
-      <div class="column">
-        <button class="department-button">EDDN Direct</button>
-        <button class="department-button">EDDN Premier</button>
-        <button class="department-button">EDDN Good Job</button>
-        <button class="department-button">EDDN Easygen</button>
-      </div>
-    </div>
+<div id="departmentSelection">
+  <h2>Select Department</h2>
+  <div class="button-grid">
+    <button onclick="selectDepartment(1, 'ECSI Direct')">1. ECSI Direct</button>
+    <button onclick="selectDepartment(5, 'EDDN Direct')">5. EDDN Direct</button>
+    <button onclick="selectDepartment(2, 'ECSI Premier')">2. ECSI Premier</button>
+    <button onclick="selectDepartment(6, 'EDDN Premier')">6. EDDN Premier</button>
+    <button onclick="selectDepartment(3, 'ECSI Good Job')">3. ECSI Good Job</button>
+    <button onclick="selectDepartment(7, 'EDDN Good Job')">7. EDDN Good Job</button>
+    <button onclick="selectDepartment(4, 'ECSI Easygen')">4. ECSI Easygen</button>
+    <button onclick="selectDepartment(8, 'EDDN Easygen')">8. EDDN Easygen</button>
   </div>
+</div>
 
-  <div id="inputScreen" class="hidden">
-    <p>
-      Department: <strong id="selectedDept"></strong><br>
-      <span id="deptNumber" style="font-weight: bold;"></span>
-    </p>
-    <input type="text" id="empIdInput" placeholder="Enter ID" />
-    <p id="result"></p>
-  </div>
+<div id="mainContent" class="hidden">
+  <h1>Canteen Deduction (ver. 1.10)</h1>
+  <h2>RAPT Grill & Restobar</h2>
+  <h3 id="currentDate"></h3>
+  <h3 id="selectedDeptDisplay"></h3>
 
-  <script>
-    const departments = [
-      "ECSI Direct",
-      "ECSI Premier",
-      "ECSI Good Job",
-      "ECSI Easygen",
-      "EDDN Direct",
-      "EDDN Premier",
-      "EDDN Good Job",
-      "EDDN Easygen"
-    ];
+  <input type="text" id="idInput" placeholder="Enter Employee ID" />
+  <button onclick="clearInput()">Clear</button>
 
-    const deptButtonsDiv = document.getElementById("deptButtons");
-    const selectedDeptText = document.getElementById("selectedDept");
-    const empIdInput = document.getElementById("empIdInput");
-    const welcomeScreen = document.getElementById("welcomeScreen");
-    const inputScreen = document.getElementById("inputScreen");
-    const result = document.getElementById("result");
+  <div id="result">Loading employee data...</div>
+</div>
 
-    let selectedDept = "";
-    let selectedDeptIndex = -1;
+<script>
+  document.getElementById("currentDate").textContent = "Date: " + new Date().toLocaleDateString();
 
-    document.querySelectorAll(".department-button").forEach((btn, index) => {
-      btn.onclick = () => selectDepartment(btn.textContent, index);
+  const csvUrl = 'https://thegadore-2.github.io/emp/EMP_DATA.csv';
+  let employeeList = [];
+  let selectedDeptNum = "";
+  let selectedDeptName = "";
+
+  fetch(csvUrl)
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      return response.text();
+    })
+    .then(data => {
+      const lines = data.trim().split('\n');
+      const headers = lines[0].split(',');
+      const idIndex = headers.indexOf("ID");
+      const nameIndex = headers.indexOf("NAME");
+
+      employeeList = lines.slice(1).map(line => {
+        const cols = line.split(',');
+        return {
+          id: cols[idIndex]?.trim(),
+          name: cols[nameIndex]?.trim()
+        };
+      });
+
+      document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+      document.getElementById("result").textContent = "Failed to load employee data.";
     });
 
-    function selectDepartment(dept, index) {
-      selectedDept = dept;
-      selectedDeptIndex = index + 1;
-      selectedDeptText.textContent = dept;
-      document.getElementById("deptNumber").textContent = "Dept No: " + selectedDeptIndex;
-      welcomeScreen.classList.add("hidden");
-      inputScreen.classList.remove("hidden");
-      empIdInput.focus();
+  function selectDepartment(num, name) {
+    selectedDeptNum = num;
+    selectedDeptName = name;
+    document.getElementById("selectedDeptDisplay").textContent = `Department: ${selectedDeptNum} – ${selectedDeptName}`;
+    document.getElementById("departmentSelection").classList.add("hidden");
+    document.getElementById("mainContent").classList.remove("hidden");
+    document.getElementById("idInput").focus();
+  }
+
+  function findEmployee() {
+    const inputId = document.getElementById("idInput").value.trim();
+    const resultDiv = document.getElementById("result");
+
+    if (!inputId) {
+      resultDiv.textContent = "Please enter an Employee ID.";
+      return;
     }
 
-    empIdInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        const id = empIdInput.value.trim();
-        fetch("emp_data.csv")
-          .then((res) => res.text())
-          .then((data) => {
-            const lines = data.trim().split("\n");
-            const headers = lines[0].split(",");
-            const idIndex = headers.indexOf("ID");
-            const nameIndex = headers.indexOf("NAME");
-            const match = lines.slice(1).map(row => row.split(",")).find(cells => cells[idIndex] === id);
-            if (match) {
-              const name = match[nameIndex];
-              result.textContent = `ID: ${id}\nName: ${name}`;
-              printReceipt(id, name);
-              empIdInput.value = "";
-            } else {
-              result.textContent = "ID not found.";
-            }
-          })
-          .catch((err) => {
-            console.error("Fetch error:", err);
-            result.textContent = "Failed to load employee data.";
-          });
-      }
-    });
+    const match = employeeList.find(emp => emp.id === inputId);
 
-    function printReceipt(id, name) {
-      const popup = window.open("", "Print", "width=300,height=400");
-      popup.document.write(`
-        <html><head><title>RAPT Grill & Restobar</title></head>
-        <body style="font-size: 13px; font-family: monospace;">
-          <div style="white-space: pre-wrap;">
-Dept No: ${selectedDeptIndex}
-RAPT Grill & Restobar
-------------------------
-ID       : ${id}
-Name     : ${name}
-Dept     : ${selectedDept}
-Amount   : ____________
-------------------------
-          </div>
-          <script>
-            window.onload = function() {
-              window.print();
-              setTimeout(() => window.close(), 500);
-            }
-          <\/script>
-        </body></html>
-      `);
-      popup.document.close();
+    if (match) {
+      resultDiv.textContent = `ID: ${match.id}\nName: ${match.name}`;
+      printResult(match.id, match.name);
+      document.getElementById("idInput").value = "";
+      document.getElementById("idInput").focus();
+    } else {
+      resultDiv.textContent = "Employee not found.";
     }
+  }
 
-    document.getElementById("currentDate").textContent = new Date().toLocaleDateString();
-  </script>
+  function clearInput() {
+    document.getElementById("idInput").value = "";
+    document.getElementById("idInput").focus();
+    document.getElementById("result").textContent = "Employee data loaded. Please enter an ID.";
+  }
+
+  function printResult(id, name) {
+    const printWindow = window.open('', 'RAPT Grill & Restobar', 'height=300,width=400');
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>RAPT Grill & Restobar</title>
+        <style>
+          @media print {
+            body {
+              width: 58mm;
+              margin: 0;
+              padding: 0;
+              font-family: monospace, sans-serif;
+              font-size: 16px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            td.label {
+              text-align: right;
+              padding-right: 5px;
+              font-weight: normal;
+              white-space: nowrap;
+            }
+            td.value {
+              font-weight: bold;
+              font-size: 130%;
+              white-space: nowrap;
+            }
+          }
+          body {
+            width: 58mm;
+            margin: 0;
+            padding: 0;
+            font-family: monospace, sans-serif;
+            font-size: 16px;
+          }
+        </style>
+      </head>
+      <body>
+        <table>
+          <tr>
+            <td class="label">Dept:</td>
+            <td class="value">${selectedDeptNum}</td>
+          </tr>
+          <tr>
+            <td class="label">ID:</td>
+            <td class="value">${id}</td>
+          </tr>
+          <tr>
+            <td class="label">Name:</td>
+            <td class="value">${name}</td>
+          </tr>
+          <tr>
+            <td class="label">Amount:</td>
+            <td class="value"></td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    setTimeout(() => {
+      printWindow.close();
+    }, 500);
+  }
+
+  document.getElementById("idInput").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+      findEmployee();
+    }
+  });
+</script>
+
 </body>
 </html>
